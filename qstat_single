@@ -1,0 +1,3 @@
+#!/bin/sh
+
+qstat -q | egrep "short|medium|long|pqexss|pqjk|pqdd"

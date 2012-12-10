@@ -1,0 +1,8 @@
+#!/bin/sh
+
+for file in "$@"
+do
+ echo -n "${file} "
+ grep "occ" "${file}" | tail -n 1 | awk '{printf("\t\tHOMO: %f eV\t",$NF*27.211)}'
+ grep "virt" "${file}" | head -n 1 | awk '{print "LUMO: ",$5*27.211, " eV"}'
+done

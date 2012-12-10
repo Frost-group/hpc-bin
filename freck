@@ -1,0 +1,80 @@
+#!/bin/sh
+
+if [ "${PROJECT}" = "" ]
+then
+    echo "Project not set."
+    echo "ABORT!!!"
+    exit
+fi
+
+#if [ ! -d ~/REPOSITORY/LABBOOK/${PROJECT} ]
+#then
+#    echo "WARNING: Directory does not exist?! "
+#    echo "ABORT!!!"
+#    exit
+#fi
+
+figs=/home/jarvist/REPOSITORY/LABBOOK/${PROJECT}/figs/
+PWD=` pwd `
+DATE=` date `
+
+for i in "$@"
+do
+    base="${i%.*}"
+    echo "FRECKing file:    ${base}"
+    
+    echo -n "Rename? (Enter to keep the same) "
+    read new
+    if [ "${new}" = "" ]
+    then
+        echo "Preserving name... ${base}"
+        new="${base}"
+    else
+	echo "Renaming on the fly to: ${new}"
+    fi
+
+    echo -n "Comment / Caption? "
+    read caption
+
+    echo "OK, preparing to mangle files... "
+    echo "File: ${base}.* will become ${figs}${new}.*"
+    echo "With caption: ${caption}"
+
+echo 
+
+    #The inner FRECKer
+    for file in "${base}".*
+    do
+        extension="${file#*.}"
+	echo scp "jmf02@login.cx1.hpc.ic.ac.uk:${PWD}/${file}" "${figs}${new}.${extension}"
+    done
+    
+echo
+
+    #Fess up to what we just did...
+#cat > ${figs}${new}.freck << EOF
+#On ${DATE} in ${PWD}
+#File: ${base}.* became ${figs}${new}.*
+#The caption was:
+#${caption}
+#EOF
+
+    #And vomit up some LATEX for copy 'n' pasting into notebook
+cat << EOF
+
+
+% F*R*E*C*K
+%On ${DATE} in ${PWD} 
+%File: ${base}.* became ${figs}${new}.*
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\columnwidth]{./figs/${new}}
+\caption{\label{${new}}
+${caption}
+}
+\end{figure}
+
+
+EOF
+    
+done

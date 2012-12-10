@@ -1,0 +1,13 @@
+#!/bin/sh
+
+qstat > ~/q.tmp
+
+running=` grep \ R\  ~/q.tmp | wc -l `
+qd=` grep \ Q\  ~/q.tmp | wc -l `
+
+echo "My Jobs: ${running} running, ${qd} queued."
+echo
+
+echo "Assuming 8CPU jobs on 2.6GHz Xeons, that's: "
+
+echo $running | awk ' {print $1 * 8," CPUs ", $1 * 8 * 5.2," GFLOPS"} '

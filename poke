@@ -1,0 +1,9 @@
+#!/bin/sh
+
+sleep 300
+banner "Hey Jarv!"
+date
+echo
+
+$*
+

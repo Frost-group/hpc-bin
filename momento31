@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "The Queen: It's a poor sort of memory that only works backward."
+echo "Modified in last Week:"
+find /work/jmf02/ -mtime 31 

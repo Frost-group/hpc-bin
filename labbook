@@ -1,0 +1,32 @@
+#!/bin/sh
+
+if [ "${PROJECT}" = "" ]
+then
+    echo "Project not set."
+    echo -n "Enter Project: "
+    read PROJECT
+
+    export PROJECT
+else
+    echo "Current Project: $PROJECT"
+fi
+
+if [ ! -d ~/REPOSITORY/LABBOOK/${PROJECT} ]
+then
+    echo "WARNING: Directory does not exist?! "
+fi
+ 
+PWD=` pwd `
+DATE=` date `
+
+echo "#Trapping history for project ${PROJECT} of ${USER} in ${PWD} at ${DATE}"
+echo "#Trapping history for project ${PROJECT} of ${USER} in ${PWD} at ${DATE}" >> .bash_history
+
+#trap "history -w " EXIT
+#put an H at start of promp
+#export PS1="H${PS1}"
+
+export HISTFILE="${PWD}/.bash_history"
+bash
+
+

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+qstat -q | egrep "q48|test81|test83|pqexss|pqjk|pqdd"
