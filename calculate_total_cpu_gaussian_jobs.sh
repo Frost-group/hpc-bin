@@ -9,5 +9,6 @@ do
  total=` echo $calc | bc -l `
 fi
 done
-
+echo
 echo $total "Hours CPU Time"
+

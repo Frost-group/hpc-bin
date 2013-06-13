@@ -2,6 +2,7 @@
 
 #Automagic .com CX1 job submitter. A WIP. 
 #JMF 2007-09
+#2013-06-11 - added option to run double precision version of MDRUN; it was late and I was tired.
 #Bash is a stranger in an open car...
 
 #Get Options
@@ -23,6 +24,7 @@ OPTIONS:
 	-m amount of memory
 	-q queue
 	-t time
+    -d run double precision (generally for energy minimisation)
 
 DEFAULTS (+ inspect for formatting):
 	NCPUS = ${NCPUS}
@@ -32,13 +34,16 @@ DEFAULTS (+ inspect for formatting):
 EOF
 }
 
-while getopts ":n:m:q:t:?" Option
+MDRUN="mdrun"
+
+while getopts ":n:m:q:t:d?" Option
 do
     case $Option in
         n    ) NCPUS=$OPTARG;;
         m    ) MEM=$OPTARG;;
 	q    ) QUEUE=$OPTARG;;
 	t    ) TIME="${OPTARG}";;
+    d   )  MDRUN="mdrun_mpi_d";;
         ?    ) USAGE
                exit 0;;
         *    ) echo ""
@@ -72,11 +77,11 @@ do
 #PBS -l walltime=${TIME}
 #PBS -l select=1:ncpus=${NCPUS}:mem=${MEM}
 
-module load gromacs/4.5.4 mpi intel-suite
+module load gromacs/4.6 gromacs/4.5.4 mpi intel-suite
 
 cp ${PWD}/${WD}/${FIL} ./
 
-pbsexec mpiexec mdrun -s ${FIL}
+pbsexec mpiexec ${MDRUN} -s ${FIL}
 
 cp *.*  ${PWD}/${WD}/ 
 
