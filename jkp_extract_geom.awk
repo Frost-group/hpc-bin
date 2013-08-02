@@ -44,12 +44,12 @@ at_symbol[50]="Sn"
 at_symbol[51]="Sb"
 at_symbol[53]="I"
 at_symbol[54]="Xe"
-at_symbol[64]="Pt"
-at_symbol[65]="Au"
-at_symbol[66]="Hg"
-at_symbol[67]="Tl"
-at_symbol[68]="Pb"
-at_symbol[69]="Bi"
+at_symbol[78]="Pt"
+at_symbol[79]="Au"
+at_symbol[80]="Hg"
+at_symbol[81]="Tl"
+at_symbol[82]="Pb"
+at_symbol[83]="Bi"
 }
 {
  if (($1=="Standard" && $2=="orientation:") || ($1 == "Z-Matrix" && $2 == "orientation:")) {
