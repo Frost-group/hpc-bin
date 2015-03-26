@@ -1,80 +1,29 @@
-#!/bin/sh
+#!/bin/bash  
+# Force Bash, so we have 'let' for addition 
 
-if [ "${PROJECT}" = "" ]
-then
-    echo "Project not set."
-    echo "ABORT!!!"
-    exit
-fi
+echo "If you knew Time as well as I do, said the Hatter, you wouldn't talk about wasting IT. It's HIM."
 
-#if [ ! -d ~/REPOSITORY/LABBOOK/${PROJECT} ]
-#then
-#    echo "WARNING: Directory does not exist?! "
-#    echo "ABORT!!!"
-#    exit
-#fi
+count=` cat .count `
+let count=count+1
+echo $count > .count
 
-figs=/home/jarvist/REPOSITORY/LABBOOK/${PROJECT}/figs/
-PWD=` pwd `
-DATE=` date `
+prefix=` echo $count | awk '{printf("%04d",$1)}' `
 
-for i in "$@"
-do
-    base="${i%.*}"
-    echo "FRECKing file:    ${base}"
-    
-    echo -n "Rename? (Enter to keep the same) "
-    read new
-    if [ "${new}" = "" ]
-    then
-        echo "Preserving name... ${base}"
-        new="${base}"
-    else
-	echo "Renaming on the fly to: ${new}"
-    fi
+echo "OK; going to bundle & rename to (please enter...):"
+echo -n "${prefix}-"
+read suffix
 
-    echo -n "Comment / Caption? "
-    read caption
+newdir="${prefix}-${suffix}"
 
-    echo "OK, preparing to mangle files... "
-    echo "File: ${base}.* will become ${figs}${new}.*"
-    echo "With caption: ${caption}"
+echo "Moving files to ${newdir}..."
+mkdir "${newdir}"
+mv *.* "${newdir}"
 
-echo 
+echo "Leaving breadcrumbs..."
+touch "${newdir}/`date +%Y-%m-%d_%H%S`_${USER}_at_${HOSTNAME}"
 
-    #The inner FRECKer
-    for file in "${base}".*
-    do
-        extension="${file#*.}"
-	echo scp "jmf02@login.cx1.hpc.ic.ac.uk:${PWD}/${file}" "${figs}${new}.${extension}"
-    done
-    
-echo
+# Doesn't work currently - we're in a sub shell (~:
+# Nice things to do with permanently changing .bashrc to adjust history defaults, which might be an idea anyway...
+#   HISTFILE="${newdir}"/`date +%Y-%m-%d`_${USER}_at_${HOSTNAME}.dat
+#   history -a # Dump history saved in memory (i.e. this shell)
 
-    #Fess up to what we just did...
-#cat > ${figs}${new}.freck << EOF
-#On ${DATE} in ${PWD}
-#File: ${base}.* became ${figs}${new}.*
-#The caption was:
-#${caption}
-#EOF
-
-    #And vomit up some LATEX for copy 'n' pasting into notebook
-cat << EOF
-
-
-% F*R*E*C*K
-%On ${DATE} in ${PWD} 
-%File: ${base}.* became ${figs}${new}.*
-\begin{figure}[h!]
-\centering
-\includegraphics[width=0.8\columnwidth]{./figs/${new}}
-\caption{\label{${new}}
-${caption}
-}
-\end{figure}
-
-
-EOF
-    
-done
