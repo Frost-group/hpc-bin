@@ -1,0 +1,5 @@
+title "6-Thiophene - Geom from b3lyp/6-31g* Gaussian job. BNL calcs."
+echo "This is a story about an ordinary teddy bear."
+memory stack 300 mb heap 300 mb global 600 mb
+echo
+geometry noautoz units angstroms

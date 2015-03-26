@@ -1,0 +1,74 @@
+end
+basis
+ * library 6-31g*
+end
+
+dft
+ iterations 50
+ print  kinetic_energy
+
+ xc xbnl07 0.90 lyp 1.00 hfexch 1.00
+ cam CAM cam_alpha 0.0 cam_beta 1.0
+ direct
+
+ decomp
+end
+task dft energy
+
+#Cations are POSITIVE
+
+charge 1
+dft
+ odft
+ mult 2 #Multiplicity!
+ iterations 50
+ print  kinetic_energy
+
+ xc xbnl07 0.90 lyp 1.00 hfexch 1.00
+ cam CAM cam_alpha 0.0 cam_beta 1.0
+ direct
+
+ decomp
+end
+
+task dft energy
+
+#Anions are NEGATIVE
+
+charge -1
+dft
+ odft
+ mult 2 #Multiplicity!
+ iterations 50
+ print  kinetic_energy
+
+ xc xbnl07 0.90 lyp 1.00 hfexch 1.00
+ cam CAM cam_alpha 0.0 cam_beta 1.0
+ direct
+
+ decomp
+end
+
+task dft energy
+
+#Let's get our TDDDFT on
+
+#dft
+#  iterations 50
+#  print  kinetic_energy
+#
+#  xc xbnl07 0.90 lyp 1.00 hfexch 1.00
+#  cam 0.25 cam_alpha 0.0 cam_beta 1.0
+#  direct
+#
+#  decomp
+#  end
+#task dft energy
+#
+#tddft
+#  nroots 6
+#  singlet triplet
+#end
+#
+#task tddft energy
+
