@@ -1,6 +1,8 @@
 #!/bin/bash  
 # Force Bash, so we have 'let' for addition 
 
+VERSION="0.01"
+
 echo "If you knew Time as well as I do, said the Hatter, you wouldn't talk about wasting IT. It's HIM."
 
 count=` cat .count `
@@ -20,7 +22,17 @@ mkdir "${newdir}"
 mv *.* "${newdir}"
 
 echo "Leaving breadcrumbs..."
-touch "${newdir}/`date +%Y-%m-%d_%H%S`_${USER}_at_${HOSTNAME}"
+crumb="${newdir}/`date +%Y-%m-%d_%H%S`_${USER}_at_${HOSTNAME}"
+
+touch "${crumb}"
+
+cat > ${crumb} << EOF
+#Archived with Freck Version ${VERSION}... 
+# Still not able to extract history
+pwd: ` pwd `
+date: ` date `
+hostname: `hostname `
+EOF
 
 # Doesn't work currently - we're in a sub shell (~:
 # Nice things to do with permanently changing .bashrc to adjust history defaults, which might be an idea anyway...
