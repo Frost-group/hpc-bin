@@ -1,7 +1,12 @@
 #!/bin/bash  
 # Force Bash, so we have 'let' for addition 
 
-VERSION="0.01"
+# Freck - "To move swiftly or nimbly."
+# http://matadornetwork.com/abroad/20-obsolete-english-words-that-should-make-a-comeback/
+
+VERSION="0.02"
+# 0.01 Works!
+# 0.02 Uses find + moves [[:upper:]] files to subdir.
 
 echo "If you knew Time as well as I do, said the Hatter, you wouldn't talk about wasting IT. It's HIM."
 
@@ -21,9 +26,16 @@ read suffix
 newdir="${prefix}-${suffix}"
 # Should look like "0004-MY_wicked_calculations"
 
-echo "Moving files to ${newdir}..."
+echo -n "Making directory ${newdir} ..."
 mkdir "${newdir}"
-mv *.* "${newdir}"
+echo "Moving files to ${newdir}..."
+
+#mv *.* "${newdir}" # Standard files
+find  ./ -maxdepth 1 -name "*.*"            -type f -print0 | xargs -0 -I {} mv {} "${newdir}"
+find  ./ -maxdepth 1 -name "[[:upper:]]*"   -type f -print0 | xargs -0 -I {} mv {} "${newdir}"
+
+# find  ./ -maxdepth 1 -name "[[:upper:]]*" -type f   # something like this + then mv
+#mv [A-Z] "${newdir}" # VASP and other Fortran programmes ALLCAPS output files (no extension)
 
 # Automatic logging - would like to add a lot more...
 
