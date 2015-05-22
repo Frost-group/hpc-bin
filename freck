@@ -31,8 +31,8 @@ mkdir "${newdir}"
 echo "Moving files to ${newdir}..."
 
 #mv *.* "${newdir}" # Standard files
-find  ./ -maxdepth 1 -name "*.*"            -type f -print0 | xargs -0 -I {} mv {} "${newdir}"
-find  ./ -maxdepth 1 -name "[[:upper:]]*"   -type f -print0 | xargs -0 -I {} mv {} "${newdir}"
+find  ./ -maxdepth 1 -name "*.*" -not -name ".*" -type f -print0 | xargs -0 -I {} mv {} "${newdir}"
+find  ./ -maxdepth 1 -name "[[:upper:]]*" -type f -print0 | xargs -0 -I {} mv {} "${newdir}"
 
 # find  ./ -maxdepth 1 -name "[[:upper:]]*" -type f   # something like this + then mv
 #mv [A-Z] "${newdir}" # VASP and other Fortran programmes ALLCAPS output files (no extension)
