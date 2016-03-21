@@ -1,8 +1,10 @@
 #!/bin/sh
 
-for file in "$@"
+for file 
 do
- echo -n "${file} "
- grep "occ" "${file}" | tail -n 1 | awk '{printf("\t\tHOMO: %f eV\t",$NF*27.211)}'
- grep "virt" "${file}" | head -n 1 | awk '{print "LUMO: ",$5*27.211, " eV"}'
+ HOMO=` grep "occ" "${file}" | tail -n 1 | awk '{print $NF*27.211}' `
+ LUMO=` grep "virt" "${file}" | head -n 1 | awk '{print $5*27.211}' `
+ KSGAP=` echo "${LUMO} - ${HOMO}" | bc -l `
+
+ echo "${file}  HOMO: ${HOMO} LUMO: ${LUMO} KSGAP: ${KSGAP}"
 done
