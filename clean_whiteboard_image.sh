@@ -5,6 +5,11 @@
 # The first convert line takes a lot of CPU to run! So expect 10-20 s for a moderate 10MB image.
 
 # The BW ones in particular are very useful for photographing pages of old journals in the library
+# For post processing, you might find this useful to make a compressed ish PDF:-
+
+#  convert bw_* 1973-Levanyuk_Osipov_PL.pdf
+#  pdf2ps 1973-Levanyuk_Osipov_PL.pdf
+#  ps2pdf 1973-Levanyuk_Osipov_PL.ps
 
 for f
 do

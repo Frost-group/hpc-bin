@@ -1,6 +1,8 @@
 #!/usr/bin/awk -f 
 # Pass me an 'OUTCAR' and I'll extract fundamental gaps at all k-points.
 
+# Assumes closed shell calculation (double occupancy)
+
 #Looks like:
 # k-point    14 :      -0.3333   -0.3333    0.3333
 #  band No.  band energies     occupation 
@@ -15,11 +17,12 @@
     printf("k-point: %d kx: %f ky: %f kz: %f ",kpoint,kx,ky,kz)
 
     getline # Ignore this line 'band No. band energies occupation'
-    while (getline && $3 > 1.0 ) #while more than half an electron
+    do 
     {
+        getline
         occ=unocc # juggle temporary variables
         unocc=$2 # band energy
-    }
+    } while ($3 > 1.0) #while more than half occupied
 
     printf("VBM: %f CBM: %f Bg: %f\n",occ,unocc,unocc-occ)
 }
