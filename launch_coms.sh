@@ -8,7 +8,7 @@
 
 #Get Options
 
-NCPUS=8
+NCPUS=12 # New standard, circa, 2016
 MEM=11800mb   #Simon Burbidge correction - lots of nodes with 12GB physical memory, leaves no overhead for OS
 QUEUE="" #default route
 TIME="71:58:02" # Two minutes to midnight :^)
@@ -18,15 +18,16 @@ function USAGE()
  cat << EOF
 Jarv's Gaussian com file runner.
 
-USAGE: ./launch_coms.sh [-nmqtsl] COMFILE(S)
+USAGE: ./launch_coms.sh [-nmqtsle] COMFILE(S)
 
 OPTIONS:
     -n number of cpus
     -m amount of memory
     -q queue
     -t time
-    -s short queue (-n 1 -m 1899mb -t 0:59:59)
-    -l long  queue (-n 1 -m 1899mb -t 21:58:00)
+    -s short single-CPU queue (-n 1 -m 1899mb -t 0:59:59)
+    -l long  single-CPU queue (-n 1 -m 1899mb -t 21:58:00)
+    -e pqexss standard (-q pqexss -n 20 -m 125GB -t 89:58:00 ) 
 
 DEFAULTS (+ inspect for formatting):
     NCPUS = ${NCPUS}
@@ -36,7 +37,7 @@ DEFAULTS (+ inspect for formatting):
 
 The defaults above will require something like the following in your COM files:
     %mem=8GB
-    %nprocshared=8
+    %nprocshared=12
 EOF
 }
 
@@ -53,6 +54,10 @@ do
         l    )  NCPUS=1
                 TIME="21:58:00"
                 MEM="1899mb";;
+        e    )  QUEUE="pqexss"
+                NCPUS=20
+                TIME="89:58:00"
+                MEM="125GB";;
         ?    )  USAGE
                 exit 0;;
         *    )  echo ""
