@@ -41,7 +41,7 @@ The defaults above will require something like the following in your COM files:
 EOF
 }
 
-while getopts ":n:m:q:t:sl?" Option
+while getopts ":n:m:q:t:sle?" Option
 do
     case $Option in
         n    )  NCPUS=$OPTARG;;
