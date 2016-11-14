@@ -27,7 +27,8 @@ OPTIONS:
     -t time
     -s short single-CPU queue (-n 1 -m 1899mb -t 0:59:59)
     -l long  single-CPU queue (-n 1 -m 1899mb -t 21:58:00)
-    -e pqexss standard (-q pqexss -n 20 -m 125GB -t 89:58:00 ) 
+    -e pqexss 'full node' job (-q pqexss -n 20 -m 125GB -t 89:58:00 ) 
+    -x taskfarm! Serialise all jobs within a single taskfarm.sh submission script.
 
 DEFAULTS (+ inspect for formatting):
     NCPUS = ${NCPUS}
@@ -41,7 +42,7 @@ The defaults above will require something like the following in your COM files:
 EOF
 }
 
-while getopts ":n:m:q:t:sle?" Option
+while getopts ":n:m:q:t:slex?" Option
 do
     case $Option in
         n    )  NCPUS=$OPTARG;;
@@ -58,6 +59,7 @@ do
                 NCPUS=20
                 TIME="89:58:00"
                 MEM="125GB";;
+        x    )  TASKFARM=TRUE;;
         ?    )  USAGE
                 exit 0;;
         *    )  echo ""
@@ -82,7 +84,43 @@ shift $(($OPTIND - 1))
 
 PWD=` pwd `
 
-for COM in $*
+# Task farming! serialise all these jobs into taskfarm.sh
+if [ $TASKFARM ]
+then
+    cat > taskfarm.sh << EOF
+#!/bin/sh
+#PBS -l walltime=${TIME}
+#PBS -l select=1:ncpus=${NCPUS}:mem=${MEM}
+
+EOF
+
+for COM
+do
+    FIL=${COM#*/} #strip filetype off
+    cat >> taskfarm.sh << EOF
+cp "${PWD}/${FIL}" ./ # Copy run file in
+g03 "${FIL}" # Run Gaussian on it
+cp "${FIL%.*}.log" "${PWD}" # Copy log file home once we've finished
+date >> taskfarm.log
+echo "${FIL} finished" >> taskfarm.log
+
+EOF
+done
+
+cat >> taskfarm.sh << EOF
+
+cp -a taskfarm.log "${PWD}" # Copy log file home
+cat taskfarm.log # will also end up in PBS .s file
+
+echo "For us, there is only the trying. The rest is not our business. ~T.S.Eliot"
+
+EOF
+
+echo "OK; serialised jobs written to taskfarm.sh. Have fun!"
+
+else # Not task farming, create and submit separate jobs for each .COM
+
+for COM 
 do
  WD=${COM%/*} #subdirectory that .com file is in
  FIL=${COM#*/} #strip filetype off
@@ -95,7 +133,7 @@ do
  fi
  #filth to prevent error when .com is in current directory
 
- cat  > ${COM%.*}.sh << EOF
+cat  > ${COM%.*}.sh << EOF
 #!/bin/sh
 #PBS -l walltime=${TIME}
 #PBS -l select=1:ncpus=${NCPUS}:mem=${MEM}
@@ -119,3 +157,5 @@ EOF
  #echo "CAPTURED QSUB COMMAND: "
  qsub -q "${QUEUE}" ${COM%.*}.sh
 done
+
+fi
