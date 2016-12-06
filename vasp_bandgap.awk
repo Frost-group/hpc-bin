@@ -1,9 +1,15 @@
 #!/usr/bin/awk -f 
 # Pass me an 'OUTCAR' and I'll extract fundamental gaps at all k-points.
+# And then I'll tell you the smallest direct gap, 
+#   and smallest indirect gap (along with k-space locations of CBM/VBM)
+
+# Though bare in mind the indirect gap will be spurious if it's a geometry
+# optimisation, and the 'direct gap' will be from whatever intermediate
+# geometry had the smallest gap
 
 # Assumes closed shell calculation (double occupancy)
 
-#Looks like:
+#Relevant part of OUTCAR Looks like: (aide memoir for programming...)
 # k-point    14 :      -0.3333   -0.3333    0.3333
 #  band No.  band energies     occupation 
 #      1     -18.3955      2.00000
