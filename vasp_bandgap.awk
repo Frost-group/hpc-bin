@@ -15,7 +15,8 @@
 #      1     -18.3955      2.00000
 #      2     -18.3927      2.00000
 
-BEGIN {
+# Matches to SCF cycle; so resets counters before plouging through k-points, in geom opt.
+/TOTEN/ {
     mindirect=1e6
     cbm=1e6
     vbm=-1e6
@@ -42,7 +43,7 @@ BEGIN {
 
     printf("VBM: %f CBM: %f Bg: %f\n",occ,unocc,unocc-occ)
 }
-END {
+/total charge-density/ {
     printf("\nDirect-Bg: %f Indirect-Bg: %f\n",mindirect,cbm-vbm)
     printf("Indirect-Bg: %f from VBM: %f at %f %f %f to CBM: %f at %f %f %f\n",
            cbm-vbm,     
