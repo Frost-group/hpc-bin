@@ -32,7 +32,7 @@ OPTIONS:
     -q queue
     -t time
 
-    -g16 -g09 -g03 -- choose Gaussian version; default is g16
+    -6 -9 -3 -- choose Gaussian version; default is g16
     
     Queue shortcuts:
     -s short single-CPU queue (-n 1 -m 1899mb -t 0:59:59)
@@ -46,6 +46,7 @@ DEFAULTS (+ inspect for formatting):
     MEM   = ${MEM}
     QUEUE = ${QUEUE}
     TIME = ${TIME}
+    MODULE = ${MODULE}
 
 The defaults above will require something like the following in your COM files:
     %mem=8GB
@@ -53,7 +54,7 @@ The defaults above will require something like the following in your COM files:
 EOF
 }
 
-while getopts ":n:m:q:t:slex?" Option
+while getopts ":n:m:q:t:396slex?" Option
 do
     case $Option in
         n    )  NCPUS=$OPTARG;;
@@ -61,9 +62,9 @@ do
 	    q    )  QUEUE=$OPTARG;;
 	    t    )  TIME="${OPTARG}";;
         
-        g03  )  MODULE="gaussian/g03-e01";;
-        g09  )  MODULE="gaussian/g09-e01";;
-        g16  )  MODULE="gaussian/g16-a03";;
+        3  )  MODULE="gaussian/g03-e01";;
+        9  )  MODULE="gaussian/g09-e01";;
+        6  )  MODULE="gaussian/g16-a03";;
         
         s    )  NCPUS=1
                 TIME="0:59:59"
@@ -162,7 +163,7 @@ cp ${PWD}/${WD}/${FIL%.*}.chk ./
 
 #c8609 "${FIL%.*}.chk"   #convert old checkpoints to latest (i.e. for g03 checkpoints generated before ~Dec 2009)
 
-pbsexec g16 ${FIL}
+pbsexec g03 ${FIL} # g03 is sym-linked to whatever version you've loaded :^)
 
 cp *.log  ${PWD}/${WD}/ 
 cp *.chk  ${PWD}/${WD}/
