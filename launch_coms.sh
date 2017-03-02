@@ -6,12 +6,18 @@
 #2012-04-27: Finally got around to adding single CPU defaults (for quick semi-empirical QC)
 #2012-06-19: Merged in 'these are my options' echo from the NWCHEM branch of this script, as it is well useful
 
-#Get Options
+#2017-03-02: Adding options for Gaussian 2016
+# >module avail gaussian
+#gaussian/devel-modules     gaussian/g03-d02-linda     gaussian/g03-e01           gaussian/g09-b01           gaussian/g09-c01(default)  gaussian/g16-a03
+#gaussian/g03-b04           gaussian/g03-d02-linda-pgi gaussian/g03-e01-linda     gaussian/g09-b01-nbo       gaussian/g09-d01           gaussian/source-modules
+#gaussian/g03-c02           gaussian/g03-d02-pgi       gaussian/g09               gaussian/g09-b01-nbo-6     gaussian/g09-e01
 
+# Defaults
 NCPUS=12 # New standard, circa, 2016
 MEM=11800mb   #Simon Burbidge correction - lots of nodes with 12GB physical memory, leaves no overhead for OS
 QUEUE="" #default route
 TIME="71:58:02" # Two minutes to midnight :^)
+MODULE="gaussian/g16-a03"
 
 function USAGE()
 {
@@ -25,9 +31,14 @@ OPTIONS:
     -m amount of memory
     -q queue
     -t time
+
+    -g16 -g09 -g03 -- choose Gaussian version; default is g16
+    
+    Queue shortcuts:
     -s short single-CPU queue (-n 1 -m 1899mb -t 0:59:59)
     -l long  single-CPU queue (-n 1 -m 1899mb -t 21:58:00)
     -e pqexss 'full node' job (-q pqexss -n 20 -m 125GB -t 89:58:00 ) 
+    Experimental features:
     -x taskfarm! Serialise all jobs within a single taskfarm.sh submission script.
 
 DEFAULTS (+ inspect for formatting):
@@ -49,6 +60,11 @@ do
         m    )  MEM=$OPTARG;;
 	    q    )  QUEUE=$OPTARG;;
 	    t    )  TIME="${OPTARG}";;
+        
+        g03  )  MODULE="gaussian/g03-e01";;
+        g09  )  MODULE="gaussian/g09-e01";;
+        g16  )  MODULE="gaussian/g16-a03";;
+        
         s    )  NCPUS=1
                 TIME="0:59:59"
                 MEM="1899mb";;
@@ -75,6 +91,7 @@ Well, here's what I understood / defaulted to:
     MEM     =  ${MEM}
     QUEUE   =  ${QUEUE}
     TIME    =  ${TIME}
+    MODULE  =  ${MODULE}
 EOF
 
 shift $(($OPTIND - 1))
@@ -138,14 +155,14 @@ cat  > ${COM%.*}.sh << EOF
 #PBS -l walltime=${TIME}
 #PBS -l select=1:ncpus=${NCPUS}:mem=${MEM}
 
-module load gaussian
+module load "${MODULE}" 
 
 cp ${PWD}/${WD}/${FIL} ./
 cp ${PWD}/${WD}/${FIL%.*}.chk ./
 
-c8609 "${FIL%.*}.chk"   #convert old checkpoints to latest (i.e. for g03 checkpoints generated before ~Dec 2009)
+#c8609 "${FIL%.*}.chk"   #convert old checkpoints to latest (i.e. for g03 checkpoints generated before ~Dec 2009)
 
-pbsexec g03 ${FIL}
+pbsexec g16 ${FIL}
 
 cp *.log  ${PWD}/${WD}/ 
 cp *.chk  ${PWD}/${WD}/
