@@ -1,3 +1,4 @@
+#!/bin/sh
 # Run with a list of VASP OUTCARS; I'll echo to STDOUT a very basic single-line convergence check
 # Currently just # of SCF steps; and last two TOTENs
 
