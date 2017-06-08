@@ -54,7 +54,8 @@ BEGIN {
     if (verbose)
         printf("VBM: %f CBM: %f Bg: %f\n",occ,unocc,unocc-occ)
 }
-/total charge-density/ {
+# A better way to detect end of SCF cycle... look for convergence!
+/aborting loop because EDIFF is reached/ {
     printf("%s Direct-Bg: %f Indirect-Bg: %f\n",FILENAME,mindirect,cbm-vbm)
     printf("\t(Indirect-Bg: %f from VBM: %f at %f %f %f to CBM: %f at %f %f %f)\n",
            cbm-vbm,     
