@@ -22,7 +22,7 @@ a=0}
         }
 }
 END{
-     for (k=1;k<=j;k++) 
+     for (k=0;k<=j;k++) 
          {
              print freq[k], activ[k]
          }
