@@ -40,7 +40,7 @@ OPTIONS:
     Queue shortcuts:
     -s short single-CPU queue (-n 1 -m 1899mb -t 0:59:59)
     -l long  single-CPU queue (-n 1 -m 1899mb -t 21:58:00)
-    -e pqexss 'full node' job (-q pqexss -n 24 -m 125GB -t 89:58:00 )
+    -e pqexss 'full node' job (-q pqexss -n 20 -m 125GB -t 89:58:00 )
     -w pqawalsh 'full node' job (-q pqawalsh -n 24 -m 250 GB -t 89:58:00 )
     Experimental features:
     -x taskfarm! Serialise all jobs within a single taskfarm.sh submission script.
@@ -77,7 +77,7 @@ do
                 TIME="21:58:00"
                 MEM="1899mb";;
         e    )  QUEUE="pqexss"
-                NCPUS=24
+                NCPUS=20
                 TIME="89:58:00"
                 MEM="125GB";;
         w    )  QUEUE="pqawalsh"
