@@ -22,7 +22,7 @@ MODULE="gaussian/g16-a03"
 function USAGE()
 {
  cat << EOF
-Jarv's Gaussian com file runner.
+Jarv's Gaussian COM file runner, for IC HPC CX1.
 
 USAGE: ./launch_coms.sh [-nmqtsle] COMFILE(S)
 
@@ -33,11 +33,15 @@ OPTIONS:
     -t time
 
     -6 -9 -3 -- choose Gaussian version; default is g16
+    3  )  MODULE="gaussian/g03-e01";;
+    9  )  MODULE="gaussian/g09-e01";; # Nb: this is not the default.
+    6  )  MODULE="gaussian/g16-a03";;
     
     Queue shortcuts:
     -s short single-CPU queue (-n 1 -m 1899mb -t 0:59:59)
     -l long  single-CPU queue (-n 1 -m 1899mb -t 21:58:00)
-    -e pqexss 'full node' job (-q pqexss -n 20 -m 125GB -t 89:58:00 ) 
+    -e pqexss 'full node' job (-q pqexss -n 24 -m 125GB -t 89:58:00 )
+    -w pqawalsh 'full node' job (-q pqawalsh -n 24 -m 250 GB -t 89:58:00 )
     Experimental features:
     -x taskfarm! Serialise all jobs within a single taskfarm.sh submission script.
 
@@ -54,7 +58,7 @@ The defaults above will require something like the following in your COM files:
 EOF
 }
 
-while getopts ":n:m:q:t:396slex?" Option
+while getopts ":n:m:q:t:396slewx?" Option
 do
     case $Option in
         n    )  NCPUS=$OPTARG;;
@@ -73,9 +77,13 @@ do
                 TIME="21:58:00"
                 MEM="1899mb";;
         e    )  QUEUE="pqexss"
-                NCPUS=20
+                NCPUS=24
                 TIME="89:58:00"
                 MEM="125GB";;
+        w    )  QUEUE="pqawalsh"
+                NCPUS=24
+                TIME="89:58:00"
+                MEM="250GB";;
         x    )  TASKFARM=TRUE;;
         ?    )  USAGE
                 exit 0;;
