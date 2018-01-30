@@ -13,8 +13,8 @@
 #gaussian/g03-c02           gaussian/g03-d02-pgi       gaussian/g09               gaussian/g09-b01-nbo-6     gaussian/g09-e01
 
 # Defaults
-NCPUS=12 # New standard, circa, 2016
-MEM=11800mb   #Simon Burbidge correction - lots of nodes with 12GB physical memory, leaves no overhead for OS
+NCPUS=16 # New standard, circa, 2018
+MEM=60000mb # New standard, circa 2018
 QUEUE="" #default route
 TIME="71:58:02" # Two minutes to midnight :^)
 MODULE="gaussian/g16-a03"
@@ -34,7 +34,7 @@ OPTIONS:
 
     -6 -9 -3 -- choose Gaussian version; default is g16
     3  )  MODULE="gaussian/g03-e01";;
-    9  )  MODULE="gaussian/g09-e01";; # Nb: this is not the default.
+    9  )  MODULE="gaussian/g09-e01";; 
     6  )  MODULE="gaussian/g16-a03";;
     
     Queue shortcuts:
@@ -53,8 +53,8 @@ DEFAULTS (+ inspect for formatting):
     MODULE = ${MODULE}
 
 The defaults above will require something like the following in your COM files:
-    %mem=8GB
-    %nprocshared=12
+    %mem=50GB
+    %nprocshared=16
 EOF
 }
 
