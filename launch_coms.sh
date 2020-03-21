@@ -17,7 +17,7 @@ NCPUS=16 # New standard, circa, 2018
 MEM=60000mb # New standard, circa 2018
 QUEUE="" #default route
 TIME="71:58:02" # Two minutes to midnight :^)
-MODULE="gaussian/g16-a03"
+MODULE="gaussian/g16-c01-avx"
 
 function USAGE()
 {
@@ -32,10 +32,12 @@ OPTIONS:
     -q queue
     -t time
 
-    -6 -9 -3 -- choose Gaussian version; default is g16
+    -6 -9 -3 -- choose Gaussian version; default is ${MODULE}
     3  )  MODULE="gaussian/g03-e01";;
     9  )  MODULE="gaussian/g09-e01";; 
     6  )  MODULE="gaussian/g16-a03";;
+
+    v  )  VASP ! 
     
     Queue shortcuts:
     -s short single-CPU queue (-n 1 -m 1899mb -t 0:59:59)
@@ -58,7 +60,7 @@ The defaults above will require something like the following in your COM files:
 EOF
 }
 
-while getopts ":n:m:q:t:396slewx?" Option
+while getopts ":n:m:q:t:396vslewx?" Option
 do
     case $Option in
         n    )  NCPUS=$OPTARG;;
@@ -66,9 +68,12 @@ do
 	    q    )  QUEUE=$OPTARG;;
 	    t    )  TIME="${OPTARG}";;
         
-        3  )  MODULE="gaussian/g03-e01";;
-        9  )  MODULE="gaussian/g09-e01";;
-        6  )  MODULE="gaussian/g16-a03";;
+        3  )  MODULE="gaussian/g03-e01" ;;
+        9  )  MODULE="gaussian/g09-e01" ;;
+        6  )  MODULE="gaussian/g16-a03" ;;
+
+        v  )  MODULE="intel-suite mpi/intel-2018"
+              VASP=true;;
         
         s    )  NCPUS=1
                 TIME="0:59:59"
@@ -118,6 +123,8 @@ then
 #PBS -l walltime=${TIME}
 #PBS -l select=1:ncpus=${NCPUS}:mem=${MEM}
 
+module load "${MODULE}" 
+
 EOF
 
 for COM
@@ -146,6 +153,30 @@ echo "OK; serialised jobs written to taskfarm.sh. Have fun!"
 
 else # Not task farming, create and submit separate jobs for each .COM
 
+if [ "$VASP" = true ] ; then
+
+for COM
+do
+
+    WD=${COM%.*}
+    cat > "./${WD}/vaspRUN.sh" << EOF
+#!/bin/sh
+#PBS -N BiteMe
+#PBS -l walltime=23:58:00
+#PBS -l select=01:ncpus=16:mem=98gb
+
+module load intel-suite mpi/intel-2018
+
+cp -a ${PWD}/${WD}/{INCAR,POSCAR,POTCAR,KPOINTS} ./
+
+mpiexec ~/bin/2018vasp/vasp_std  > vasp.out
+
+cp * ${PWD}/${WD}/
+EOF
+done
+
+else 
+
 for COM 
 do
  WD=${COM%/*} #subdirectory that .com file is in
@@ -171,7 +202,8 @@ cp ${PWD}/${WD}/${FIL%.*}.chk ./
 
 #c8609 "${FIL%.*}.chk"   #convert old checkpoints to latest (i.e. for g03 checkpoints generated before ~Dec 2009)
 
-pbsexec g03 ${FIL} # g03 is sym-linked to whatever version you've loaded :^)
+# no more pbsexec... are we expected to run the apps bare?
+g03 ${FIL} # g03 is sym-linked to whatever version you've loaded :^)
 
 cp *.log  ${PWD}/${WD}/ 
 cp *.chk  ${PWD}/${WD}/
@@ -182,6 +214,7 @@ EOF
 
  #echo "CAPTURED QSUB COMMAND: "
  qsub -q "${QUEUE}" ${COM%.*}.sh
-done
 
+done
+fi
 fi

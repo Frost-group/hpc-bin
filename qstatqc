@@ -3,4 +3,4 @@
 #qstat -q | egrep "q48|test81|test83|pqexss|pqjk|pqdd|sandyb"
 
 # 2017 updates - they've renamed & sanitised all the queues
-qstat -q | egrep "pqexss|pqawalsh|singlenode|multinode|serial"
+qstat -q | egrep "pqexss|pqawalsh|v1"
