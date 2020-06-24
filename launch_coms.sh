@@ -13,8 +13,8 @@
 #gaussian/g03-c02           gaussian/g03-d02-pgi       gaussian/g09               gaussian/g09-b01-nbo-6     gaussian/g09-e01
 
 # Defaults
-NCPUS=16 # New standard, circa, 2018
-MEM=60000mb # New standard, circa 2018
+NCPUS=32 # New standard, circa, 2020 (General queue
+MEM=64GB # New standard, circa 2020
 QUEUE="" #default route
 TIME="71:58:02" # Two minutes to midnight :^)
 MODULE="gaussian/g16-c01-avx"
@@ -37,15 +37,17 @@ OPTIONS:
     9  )  MODULE="gaussian/g09-e01";; 
     6  )  MODULE="gaussian/g16-a03";;
 
-    v  )  VASP ! 
+    v  )  VASP ! [I'm not sure if this still works.] 
     
-    Queue shortcuts:
-    -s short single-CPU queue (-n 1 -m 1899mb -t 0:59:59)
-    -l long  single-CPU queue (-n 1 -m 1899mb -t 21:58:00)
-    -e pqexss 'full node' job (-q pqexss -n 20 -m 125GB -t 89:58:00 )
-    -w pqawalsh 'full node' job (-q pqawalsh -n 24 -m 250 GB -t 89:58:00 )
+    Sizing shortcuts:
+        -s singlenode high-performance queue (-n 1 -m 124GB -t 23:58:00)
+    
+    Private queues:
+        -e pqexss 'full node' job (-q pqexss -n 20 -m 125GB -t 89:58:00 )
+        -w pqawalsh 'full node' job (-q pqawalsh -n 24 -m 250 GB -t 89:58:00 )
+    
     Experimental features:
-    -x taskfarm! Serialise all jobs within a single taskfarm.sh submission script.
+        -x taskfarm! Serialise all jobs within a single taskfarm.sh submission script.
 
 DEFAULTS (+ inspect for formatting):
     NCPUS = ${NCPUS}
@@ -55,8 +57,9 @@ DEFAULTS (+ inspect for formatting):
     MODULE = ${MODULE}
 
 The defaults above will require something like the following in your COM files:
-    %mem=50GB
-    %nprocshared=16
+    %mem=60GB
+    %nprocshared=${NCPUS}
+(Request slightly less memory in your Gaussian job file than allocated. It sometimes overshoots!)
 EOF
 }
 
@@ -75,12 +78,9 @@ do
         v  )  MODULE="intel-suite mpi/intel-2018"
               VASP=true;;
         
-        s    )  NCPUS=1
-                TIME="0:59:59"
-                MEM="1899mb";;
-        l    )  NCPUS=1
-                TIME="21:58:00"
-                MEM="1899mb";;
+        s    )  NCPUS=48
+                TIME="23:58:00"
+                MEM="124GB";;
         e    )  QUEUE="pqexss"
                 NCPUS=20
                 TIME="89:58:00"
