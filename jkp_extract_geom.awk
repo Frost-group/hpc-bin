@@ -52,7 +52,7 @@ at_symbol[82]="Pb"
 at_symbol[83]="Bi"
 }
 {
- if (($1=="Standard" && $2=="orientation:") || ($1 == "Z-Matrix" && $2 == "orientation:")) {
+ if (($1=="Input" && $2=="orientation:") || ($1=="Standard" && $2=="orientation:") || ($1 == "Z-Matrix" && $2 == "orientation:")) {
    getline
    getline
    getline
