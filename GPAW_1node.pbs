@@ -1,0 +1,17 @@
+#!/bin/sh -ux 
+
+#PBS -N Disconvergent 
+#PBS -l walltime=71:58:00
+#PBS -l select=1:ncpus=32:mem=64GB
+
+# GPAW is installed locally under Conda, also locally installed
+. ~/conda_init.sh
+conda activate gpaw
+
+##directly work from work
+cd "${PBS_O_WORKDIR}"
+
+mpiexec -n 32 gpaw python gpaw.py
+
+echo "For us, there is only the trying. The rest is not our business. ~T.S.Eliot"
+
