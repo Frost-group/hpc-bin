@@ -13,7 +13,7 @@
 #gaussian/g03-c02           gaussian/g03-d02-pgi       gaussian/g09               gaussian/g09-b01-nbo-6     gaussian/g09-e01
 
 # Defaults
-NCPUS=32 # New standard, circa, 2020 (General queue
+NCPUS=32 # New standard, circa, 2020 (General queue)
 MEM=64GB # New standard, circa 2020
 QUEUE="" #default route
 TIME="71:58:02" # Two minutes to midnight :^)
@@ -57,8 +57,9 @@ DEFAULTS (+ inspect for formatting):
     MODULE = ${MODULE}
 
 The defaults above will require something like the following in your COM files:
-    %mem=60GB
-    %nprocshared=${NCPUS}
+%mem=${MEM}
+%nprocshared=${NCPUS}
+# p MaxDisk=200GB 
 (Request slightly less memory in your Gaussian job file than allocated. It sometimes overshoots!)
 EOF
 }
