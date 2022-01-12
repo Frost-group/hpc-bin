@@ -12,13 +12,13 @@
 # RUN AS ./executable.sh OTHERWISE OPTIONS WILL NOT BE GATHERED!
 
 #Get Options
-
-NCPUS=8
-MEM=11800mb   #Simon Burbidge correction - lots of nodes with 12GB physical memory, leaves no overhead for OS
+NCPUS=32 # New standard, circa, 2020 (General queue)
+MEM=64GB # New standard, circa 2020
 QUEUE="" #default route
 TIME="71:58:02" # Two minutes to midnight :^)
 HOSTS=1 #Ah, the Host!
 RESTART="NAH"
+MODULELINE="nwchem/6.6" # latest working version, CX1, 2022-01
 
 function USAGE()
 {
@@ -116,7 +116,7 @@ do
 #PBS -l walltime=${TIME}
 #PBS -l select=${HOSTS}:ncpus=${NCPUS}:mem=${MEM}
 
-module load nwchem/6.0 intel-suite mpi
+module load ${MODULELINE} 
 
 #cp ${PWD}/${WD}/${FIL%.*}.chk ./
 #collect all the random files dotted around
@@ -140,7 +140,7 @@ fi
 #OK, RUN AND CLEANUP TIME
 
 cat  >> ${COM%.*}.sh << EOF
-pbsexec mpiexec /work/jmf02/nwchem-6.1/bin/LINUX64/nwchem ${FIL} >& ${FIL%.*}.out
+mpiexec nwchem ${FIL} >& ${FIL%.*}.out
 
 #nwchem vomits files everywhere, so lets bundle them up into a folder
 mkdir "${FIL%.*}"
