@@ -37,14 +37,8 @@ OPTIONS:
     9  )  MODULE="gaussian/g09-e01";; 
     6  )  MODULE="gaussian/g16-a03";;
 
-    v  )  VASP ! [I'm not sure if this still works.] 
-    
-    Sizing shortcuts:
-        -s singlenode high-performance queue (-n 1 -m 124GB -t 23:58:00)
-    
     Private queues:
         -e pqexss 'full node' job (-q pqexss -n 20 -m 125GB -t 89:58:00 )
-        -w pqawalsh 'full node' job (-q pqawalsh -n 24 -m 250 GB -t 89:58:00 )
     
     Experimental features:
         -x taskfarm! Serialise all jobs within a single taskfarm.sh submission script.
@@ -76,20 +70,11 @@ do
         9  )  MODULE="gaussian/g09-e01" ;;
         6  )  MODULE="gaussian/g16-a03" ;;
 
-        v  )  MODULE="intel-suite mpi/intel-2018"
-              VASP=true;;
-        
-        s    )  NCPUS=48
-                TIME="23:58:00"
-                MEM="124GB";;
         e    )  QUEUE="pqexss"
                 NCPUS=20
                 TIME="89:58:00"
                 MEM="125GB";;
-        w    )  QUEUE="pqawalsh"
-                NCPUS=24
-                TIME="89:58:00"
-                MEM="250GB";;
+        
         x    )  TASKFARM=TRUE;;
         ?    )  USAGE
                 exit 0;;
@@ -154,30 +139,6 @@ echo "OK; serialised jobs written to taskfarm.sh. Have fun!"
 
 else # Not task farming, create and submit separate jobs for each .COM
 
-if [ "$VASP" = true ] ; then
-
-for COM
-do
-
-    WD=${COM%.*}
-    cat > "./${WD}/vaspRUN.sh" << EOF
-#!/bin/sh
-#PBS -N BiteMe
-#PBS -l walltime=23:58:00
-#PBS -l select=01:ncpus=16:mem=98gb
-
-module load intel-suite mpi/intel-2018
-
-cp -a ${PWD}/${WD}/{INCAR,POSCAR,POTCAR,KPOINTS} ./
-
-mpiexec ~/bin/2018vasp/vasp_std  > vasp.out
-
-cp * ${PWD}/${WD}/
-EOF
-done
-
-else 
-
 for COM 
 do
  WD=${COM%/*} #subdirectory that .com file is in
@@ -194,7 +155,10 @@ do
 cat  > ${COM%.*}.sh << EOF
 #!/bin/sh
 #PBS -l walltime=${TIME}
-#PBS -l select=1:ncpus=${NCPUS}:mem=${MEM}
+#PBS -l select=1:ncpus=${NCPUS}:mem=${MEM}:gpfs=false
+# gpfs=false recommend by RCS 2022-04-24 to bias scheduler to running on Intel CX1
+# Otherwise you sit in the medium queue, and run on the AMD EPYC
+# Subject to change as they optimise the queues
 
 module load "${MODULE}" 
 
@@ -217,5 +181,4 @@ EOF
  qsub -q "${QUEUE}" ${COM%.*}.sh
 
 done
-fi
 fi
