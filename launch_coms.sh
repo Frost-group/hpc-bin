@@ -3,14 +3,11 @@
 #Automagic .com CX1 (Imperial College London HPC) job submitter. A WIP. 
 #JMF 2007-09
 #Bash is a stranger in an open car...
-#2012-04-27: Finally got around to adding single CPU defaults (for quick semi-empirical QC)
-#2012-06-19: Merged in 'these are my options' echo from the NWCHEM branch of this script, as it is well useful
-
-#2017-03-02: Adding options for Gaussian 2016
-# >module avail gaussian
-#gaussian/devel-modules     gaussian/g03-d02-linda     gaussian/g03-e01           gaussian/g09-b01           gaussian/g09-c01(default)  gaussian/g16-a03
-#gaussian/g03-b04           gaussian/g03-d02-linda-pgi gaussian/g03-e01-linda     gaussian/g09-b01-nbo       gaussian/g09-d01           gaussian/source-modules
-#gaussian/g03-c02           gaussian/g03-d02-pgi       gaussian/g09               gaussian/g09-b01-nbo-6     gaussian/g09-e01
+# 2012-04-27: Finally got around to adding single CPU defaults (for quick semi-empirical QC)
+# 2012-06-19: Merged in 'these are my options' echo from the NWCHEM branch of this script, as it is well useful
+# 2017-03-02: Adding options for Gaussian 2016
+# 2022-04: GPFS hack to run on the Intel CX1 queues
+# 2022-09-07: deleted taskfarm, added direct run (e.g. from Ephemerel, or WORK) option
 
 # Defaults
 NCPUS=32 # New standard, circa, 2020 (General queue)
@@ -18,6 +15,8 @@ MEM=64GB # New standard, circa 2020
 QUEUE="" #default route
 TIME="71:58:02" # Two minutes to midnight :^)
 MODULE="gaussian/g16-c01-avx"
+TMPDIR=true
+SUBMIT=true
 
 function USAGE()
 {
@@ -31,6 +30,7 @@ OPTIONS:
     -m amount of memory
     -q queue
     -t time
+    -d don't submit the launch script (for hand editing)
 
     -6 -9 -3 -- choose Gaussian version; default is ${MODULE}
     3  )  MODULE="gaussian/g03-e01";;
@@ -41,7 +41,9 @@ OPTIONS:
         -e pqexss 'full node' job (-q pqexss -n 20 -m 125GB -t 89:58:00 )
     
     Experimental features:
-        -x taskfarm! Serialise all jobs within a single taskfarm.sh submission script.
+        -x Run directly from current (network filesystem) directory
+           Gaussian sometimes has issues doing this, but enables you to e.g.
+           make massive checkpoints in situ, and monitor your job live. 
 
 DEFAULTS (+ inspect for formatting):
     NCPUS = ${NCPUS}
@@ -58,7 +60,7 @@ The defaults above will require something like the following in your COM files:
 EOF
 }
 
-while getopts ":n:m:q:t:396vslewx?" Option
+while getopts ":n:m:q:t:396vslewxd?" Option
 do
     case $Option in
         n    )  NCPUS=$OPTARG;;
@@ -75,7 +77,8 @@ do
                 TIME="89:58:00"
                 MEM="125GB";;
         
-        x    )  TASKFARM=TRUE;;
+        x    )  TMPDIR=false;;
+        d    )  SUBMIT=false;;
         ?    )  USAGE
                 exit 0;;
         *    )  echo ""
@@ -101,44 +104,6 @@ shift $(($OPTIND - 1))
 
 PWD=` pwd `
 
-# Task farming! serialise all these jobs into taskfarm.sh
-if [ $TASKFARM ]
-then
-    cat > taskfarm.sh << EOF
-#!/bin/sh
-#PBS -l walltime=${TIME}
-#PBS -l select=1:ncpus=${NCPUS}:mem=${MEM}
-
-module load "${MODULE}" 
-
-EOF
-
-for COM
-do
-    FIL=${COM#*/} #strip filetype off
-    cat >> taskfarm.sh << EOF
-cp "${PWD}/${FIL}" ./ # Copy run file in
-g03 "${FIL}" # Run Gaussian on it
-cp "${FIL%.*}.log" "${PWD}" # Copy log file home once we've finished
-date >> taskfarm.log
-echo "${FIL} finished" >> taskfarm.log
-
-EOF
-done
-
-cat >> taskfarm.sh << EOF
-
-cp -a taskfarm.log "${PWD}" # Copy log file home
-cat taskfarm.log # will also end up in PBS .s file
-
-echo "For us, there is only the trying. The rest is not our business. ~T.S.Eliot"
-
-EOF
-
-echo "OK; serialised jobs written to taskfarm.sh. Have fun!"
-
-else # Not task farming, create and submit separate jobs for each .COM
-
 for COM 
 do
  WD=${COM%/*} #subdirectory that .com file is in
@@ -150,35 +115,61 @@ do
  echo "WD: ${WD} equiv to File: ${FIL}. Resetting WD to null."
   WD=""
  fi
- #filth to prevent error when .com is in current directory
+ #this is a bit kludgy, but prevents an error when .com is in current directory
 
 cat  > ${COM%.*}.sh << EOF
 #!/bin/sh
 #PBS -l walltime=${TIME}
 #PBS -l select=1:ncpus=${NCPUS}:mem=${MEM}:gpfs=false
 # gpfs=false recommend by RCS 2022-04-24 to bias scheduler to running on Intel CX1
-# Otherwise you sit in the medium queue, and run on the AMD EPYC
-# Subject to change as they optimise the queues
+# Otherwise you sit in the medium queue, and run on the AMD EPYC (which is much
+# lower performance for Gaussian).
+# Subject to change as they 'optimise' the queues
 
 module load "${MODULE}" 
 
+EOF
+
+if [[ "$TMPDIR" == true ]]
+then
+    cat >> ${COM%.*}.sh << EOF
 cp ${PWD}/${WD}/${FIL} ./
 cp ${PWD}/${WD}/${FIL%.*}.chk ./
+EOF
+else
+    cat >> ${COM%.*}.sh << EOF
+cd ${PWD}/${WD}/
+EOF
+fi
 
-#c8609 "${FIL%.*}.chk"   #convert old checkpoints to latest (i.e. for g03 checkpoints generated before ~Dec 2009)
+cat  >> ${COM%.*}.sh << EOF
 
-# no more pbsexec... are we expected to run the apps bare?
-g03 ${FIL} # g03 is sym-linked to whatever version you've loaded :^)
+#convert old checkpoints to latest (i.e. for g03 checkpoints generated before ~Dec 2009)
+#c8609 "${FIL%.*}.chk"   
 
-cp *.log  ${PWD}/${WD}/ 
-cp *.chk  ${PWD}/${WD}/
-
-echo "For us, there is only the trying. The rest is not our business. ~T.S.Eliot"
+# no more pbsexec... running directly. 
+# g03 is sym-linked to whatever version you've loaded :^)
+g03 ${FIL}
 
 EOF
 
- #echo "CAPTURED QSUB COMMAND: "
- qsub -q "${QUEUE}" ${COM%.*}.sh
+if [[ "$TMPDIR" == true ]]
+then
+    cat >> ${COM%.*}.sh << EOF
+cp *.log  ${PWD}/${WD}/ 
+cp *.chk  ${PWD}/${WD}/
+
+EOF
+fi
+
+cat  >> ${COM%.*}.sh << EOF
+echo "For us, there is only the trying. The rest is not our business. ~T.S.Eliot"
+EOF
+
+if [[ "$SUBMIT" == true ]]
+then
+    qsub -q "${QUEUE}" ${COM%.*}.sh
+fi
 
 done
-fi
+
