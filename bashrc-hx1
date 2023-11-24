@@ -17,10 +17,24 @@ export PATH
 
 # User specific aliases and functions
 
+# ####### ######   #####     #
+# #     # #     # #     #   # #
+# #     # #     # #        #   #
+# #     # ######  #       #     #
+# #     # #   #   #       #######
+# #     # #    #  #     # #     #
+# ####### #     #  #####  #     #
 export LD_LIBRARY_PATH=/gpfs/home/jmf02/orca_5_0_3_linux_x86-64_shared_openmpi411:"$LD_LIBRARY_PATH"
 export PATH=/gpfs/home/jmf02/orca_5_0_3_linux_x86-64_shared_openmpi411:"$PATH"
 # Orca has to go first in Path, as orca is also some screen reader or something on some Linux
 
+#  #####
+#  #     #    ##    #    #   ####    ####      #      ##    #    #
+#  #         #  #   #    #  #       #          #     #  #   ##   #
+#  #  ####  #    #  #    #   ####    ####      #    #    #  # #  #
+#  #     #  ######  #    #       #       #     #    ######  #  # #
+#  #     #  #    #  #    #  #    #  #    #     #    #    #  #   ##
+#   #####   #    #   ####    ####    ####      #    #    #  #    #
 export GAUSS_EXEDIR=/gpfs/home/jmf02/bin/g16
 export PATH="$PATH":"$GAUSS_EXEDIR"
 
