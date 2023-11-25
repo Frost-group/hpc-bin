@@ -1,0 +1,16 @@
+#!/bin/bash
+#PBS -l walltime=23:58:00
+ # Two minutes to midnight. HX1 has 24hr and 48hr queues.
+#PBS -l select=1:ncpus=64:mpiprocs=64:mem=500gb
+
+cd $PBS_O_WORKDIR
+  
+module purge
+
+export LD_LIBRARY_PATH=/gpfs/home/jmf02/orca_5_0_3_linux_x86-64_shared_openmpi411:"$LD_LIBRARY_PATH"
+export PATH="$PATH":/gpfs/home/jmf02/orca_5_0_3_linux_x86-64_shared_openmpi411
+# Orca has to go first in Path, as orca is also some screen reader or something on some Linux
+
+/gpfs/home/jmf02/orca_5_0_3_linux_x86-64_shared_openmpi411/orca test.orca > test.out
+
+# Don't forget to include `qstat -q hx ` this!
