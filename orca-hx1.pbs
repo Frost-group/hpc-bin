@@ -7,6 +7,8 @@ cd $PBS_O_WORKDIR
   
 module purge
 
+module load OpenMPI/4.1.1-GCC-10.3.0 # for mpirun
+
 export LD_LIBRARY_PATH=/gpfs/home/jmf02/orca_5_0_3_linux_x86-64_shared_openmpi411:"$LD_LIBRARY_PATH"
 export PATH="$PATH":/gpfs/home/jmf02/orca_5_0_3_linux_x86-64_shared_openmpi411
 # Orca has to go first in Path, as orca is also some screen reader or something on some Linux
