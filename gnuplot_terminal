@@ -24,7 +24,7 @@ cat > gnuplot_terminal.sh << EOF
 # date: ` date `
 # hostname: `hostname `
 
-gnuplot << EOP | imgcat
+gnuplot << 'EOP' | imgcat
 set terminal png size 3000,2000
 
 p '${1}' u 1:2 w lp
