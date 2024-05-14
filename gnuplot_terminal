@@ -1,0 +1,39 @@
+#!/bin/bash  
+
+# Simple script to drop live gnuplot + imgcat script for live scientific data
+# plotting
+# Idea is that this is then a stub code to edit & iterate with vim, and then
+# form the basis for later 'proper' plotting for the paper.
+
+# imgcat below is supplied with iterm2 (mac terminal manager)
+# kitty (cross platform) provides icat, which should work as a drop in
+# replacement for imgcat
+
+# Neither of these work well with tmux / screen, so you generally have to do
+# plotting from a raw SSH session.
+
+VERSION="0.01"
+# 0.01 Works!
+
+cat > gnuplot_terminal.sh << EOF
+#!/bin/bash
+
+#Archived with gnuplot_terminal.sh Version ${VERSION}... 
+# `date +%Y-%m-%d_%H%S`_${USER}_at_${HOSTNAME}"
+# pwd: ` pwd `
+# date: ` date `
+# hostname: `hostname `
+
+gnuplot << EOP | imgcat
+set terminal png size 3000,2000
+
+p '${1}' u 1:2 w lp
+
+EOP
+
+EOF
+
+chmod +x gnuplot_terminal.sh
+
+source gnuplot_terminal.sh
+
