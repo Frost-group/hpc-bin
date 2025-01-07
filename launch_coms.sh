@@ -10,8 +10,8 @@
 # 2022-09-07: deleted taskfarm, added direct run (e.g. from Ephemerel, or WORK) option
 
 # Defaults
-NCPUS=32 # New standard, circa, 2020 (General queue)
-MEM=64GB # New standard, circa 2020
+NCPUS=128 # 2023, one AMD EPYC node (General queue)
+MEM=128GB # New standard, circa 2020
 QUEUE="" #default route
 TIME="71:58:02" # Two minutes to midnight :^)
 MODULE="gaussian/g16-c01-avx"
@@ -120,8 +120,7 @@ do
 cat  > ${COM%.*}.sh << EOF
 #!/bin/sh
 #PBS -l walltime=${TIME}
-#PBS -l select=1:ncpus=${NCPUS}:mem=${MEM}:gpfs=false
-# gpfs=false recommend by RCS 2022-04-24 to bias scheduler to running on Intel CX1
+#PBS -l select=1:ncpus=${NCPUS}:mem=${MEM}
 # Otherwise you sit in the medium queue, and run on the AMD EPYC (which is much
 # lower performance for Gaussian).
 # Subject to change as they 'optimise' the queues
