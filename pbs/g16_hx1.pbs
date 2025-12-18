@@ -1,0 +1,29 @@
+#!/bin/bash
+#PBS -l walltime=23:58:00
+ # Two minutes to midnight. HX1 has 24hr and 48hr queues.
+#PBS -l select=1:ncpus=64:mpiprocs=64:mem=500gb
+
+# Collect node statistics
+echo
+echo "Jarv's node statistics: "
+echo -n "Number of CPUs: " && nproc
+echo -n "CPU model: " && lscpu | awk '/Model name:/ { print $0 }'
+echo -n "Total memory reported to PBS: " && echo "$PBS_VMEM" | sed 's/kb//'
+echo -n "Available memory (/proc/meminfo): " && grep -oP '^MemAvailable:\s*\K\d+' /proc/meminfo
+echo -n "Node name: " && hostname
+echo -n "Linux kernel version: " && uname -r
+echo -n "Distribution: " && cat /etc/*-release | grep PRETTY_NAME | sed 's/PRETTY_NAME=//' | sed 's/"//g'
+echo -n "Uptime: " && uptime -p
+echo
+
+cd $PBS_O_WORKDIR
+  
+module purge
+
+export GAUSS_EXEDIR=/gpfs/home/jmf02/bin/g16
+export PATH=$PATH:$GAUSS_EXEDIR
+
+g16 calc.gjf
+
+echo "For us, there is only the trying. The rest is not our business. ~T.S.Eliot"
+
