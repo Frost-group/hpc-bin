@@ -38,3 +38,6 @@ export PATH=/gpfs/home/jmf02/orca_5_0_3_linux_x86-64_shared_openmpi411:"$PATH"
 export GAUSS_EXEDIR=/gpfs/home/jmf02/bin/g16
 export PATH="$PATH":"$GAUSS_EXEDIR"
 
+
+alias quota="/usr/lpp/mmfs/bin/mmlsquota --block-size auto /dev/gpfs"
+
